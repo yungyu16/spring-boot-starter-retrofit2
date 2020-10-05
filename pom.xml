@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.yungyu16.spring</groupId>
-    <artifactId>spring-boot-starter-retrofit</artifactId>
+    <artifactId>spring-boot-starter-retrofit2</artifactId>
     <version>1.0.0</version>
 
     <properties>
