@@ -1,10 +1,13 @@
 package com.github.yungyu16.spring.retrofit.annotion;
 
+import com.github.yungyu16.spring.retrofit.interceptor.RequestTimeoutInterceptor;
+
 import java.lang.annotation.*;
 
 /**
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/26.
+ * @see RequestTimeoutInterceptor
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
