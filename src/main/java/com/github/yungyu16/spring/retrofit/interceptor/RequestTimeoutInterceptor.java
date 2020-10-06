@@ -33,5 +33,4 @@ public class RequestTimeoutInterceptor extends BaseMethodAnnotationInterceptor<R
         }
         return chain.proceed(request);
     }
-
 }
