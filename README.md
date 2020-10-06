@@ -44,7 +44,7 @@ public interface TqyApiClient {
     Call<TqyCreditEnableReply> checkIfCreditEnable(@Body TqyCreditEnableReq req);
 }
 ```
-使用`@RetrofitClient`指定请求网关地址`baseUrl`、响应转换器`ResponseConverter`、请求转换器`RequestConverter`
+使用`@RetrofitClient`指定请求网关地址`baseUrl`、响应转换器`ResponseConverter`、请求转换器`RequestConverter`    
 3. 定义请求转换器
 ```java
 @Component
