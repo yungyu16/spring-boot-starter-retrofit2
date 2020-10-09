@@ -14,6 +14,7 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.internal.EverythingIsNonNull;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
@@ -54,7 +55,7 @@ public class CompositeConverterFactory extends Converter.Factory {
         return new Converter<ResponseBody, Object>() {
             @Nullable
             @Override
-            public Object convert(@NotNull ResponseBody value) {
+            public Object convert(@NotNull ResponseBody value) throws IOException {
                 return converter.fromResponseBody(value, type);
             }
         };
@@ -73,7 +74,7 @@ public class CompositeConverterFactory extends Converter.Factory {
         return new Converter<Object, RequestBody>() {
             @Nullable
             @Override
-            public RequestBody convert(@NotNull Object value) {
+            public RequestBody convert(@NotNull Object value) throws IOException {
                 return converter.toRequestBody(value, type);
             }
         };
