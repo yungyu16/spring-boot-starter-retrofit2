@@ -7,7 +7,7 @@
 - Feign是Spring-Cloud生态中的Http请求组件，主要用户服务端RPC，和Spring IOC有很好的亲和性，但和Spring—Cloud系列组件耦合太深，依赖树太庞大。
 - Retrofit2是一个简单轻量的Http请求门面,但主要用于安卓客户端编程，在服务端开发中往往需要写一些样板代码，没法借助Spring的IOC实现依赖注入。
 
-该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中使用。
+该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中注入使用。
 
 ## 特性
 - [x] 继承Retrofit原生特性   
