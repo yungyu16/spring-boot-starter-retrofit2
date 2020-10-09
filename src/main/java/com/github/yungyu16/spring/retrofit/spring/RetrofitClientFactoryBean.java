@@ -3,17 +3,27 @@ package com.github.yungyu16.spring.retrofit.spring;
 import com.github.yungyu16.spring.retrofit.DefaultOkHttpClientLoader;
 import com.github.yungyu16.spring.retrofit.OkHttpClientLoader;
 import com.github.yungyu16.spring.retrofit.annotion.RetrofitClient;
+import com.github.yungyu16.spring.retrofit.annotion.RetrofitInterceptor;
+import com.github.yungyu16.spring.retrofit.interceptor.RequestTimeoutInterceptor;
+import com.github.yungyu16.spring.retrofit.interceptor.RequestTrackInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import retrofit2.Retrofit;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -57,7 +67,12 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Application
     @Override
     public T getObject() {
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
-        retrofitBuilder.client(HTTP_CLIENT_LOADER.getBaseHttpClient());
+        OkHttpClient baseHttpClient = HTTP_CLIENT_LOADER.getBaseHttpClient();
+        OkHttpClient.Builder builder = baseHttpClient.newBuilder()
+                .addInterceptor(new RequestTimeoutInterceptor())
+                .addInterceptor(new RequestTrackInterceptor(applicationContext));
+        applyRetrofitInterceptors(builder, clientInterface);
+        retrofitBuilder.client(builder.build());
         String baseUrl = retrofitClient.baseUrl();
         if (StringUtils.hasText(baseUrl)) {
             baseUrl = applicationContext.getEnvironment().resolveRequiredPlaceholders(baseUrl);
@@ -66,10 +81,42 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Application
             }
             retrofitBuilder.baseUrl(baseUrl);
         }
-        retrofitBuilder.addConverterFactory(new CompositeConverterFactory(applicationContext, retrofitClient.requestConverterClazz(), retrofitClient.responseConverterClazz()));
+        retrofitBuilder.addConverterFactory(new CompositeConverterFactory(applicationContext, retrofitClient.requestConverterClass(), retrofitClient.responseConverterClass()));
         log.info("开始构建Retrofit Stub。interface：" + clientInterface + " baseUrl：" + baseUrl);
         Retrofit retrofit = retrofitBuilder.build();
         return retrofit.create(clientInterface);
+    }
+
+    private void applyRetrofitInterceptors(OkHttpClient.Builder builder, Class<?> retrofitClientClass) {
+        Assert.notNull(builder, "OkHttpClient.Builder");
+        Assert.notNull(retrofitClientClass, "retrofitClientClass");
+        String[] interceptorNames = BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(applicationContext, RetrofitInterceptor.class);
+        Arrays.stream(interceptorNames)
+                .map(it -> applicationContext.getBean(it))
+                .filter(it -> checkIfApply(retrofitClientClass, it))
+                .map(it -> ((Interceptor) it))
+                .forEach(builder::addInterceptor);
+    }
+
+    @NotNull
+    private boolean checkIfApply(Class<?> retrofitClientClass, Object interceptor) {
+        Class<?> interceptorClazz = ClassUtils.getUserClass(interceptor);
+        AnnotationAttributes mergedAnnotationAttributes = AnnotatedElementUtils.getMergedAnnotationAttributes(interceptorClazz, RetrofitInterceptor.class);
+        RetrofitInterceptor annotation = AnnotationUtils.findAnnotation(interceptorClazz, RetrofitInterceptor.class);
+        if (annotation == null) {
+            return false;
+        }
+        Class<?>[] includeClasses = annotation.includeClasses();
+        Class<?>[] excludeClasses = annotation.excludeClasses();
+        boolean included = true;
+        boolean excluded = false;
+        if (!(includeClasses.length == 1 && includeClasses[0] == Object.class)) {
+            included = Arrays.stream(includeClasses).anyMatch(it -> it == retrofitClientClass);
+        }
+        if (!(excludeClasses.length == 1 && includeClasses[0] == Object.class)) {
+            excluded = Arrays.stream(excludeClasses).anyMatch(it -> it == retrofitClientClass);
+        }
+        return included && !excluded;
     }
 
     @Override

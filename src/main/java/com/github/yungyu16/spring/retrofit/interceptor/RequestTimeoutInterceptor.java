@@ -6,6 +6,7 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +19,7 @@ public class RequestTimeoutInterceptor extends BaseMethodAnnotationInterceptor<R
     }
 
     @Override
-    protected Response doIntercept(@NotNull RequestTimeout annotation, @NotNull Chain chain, @NotNull Request request) throws IOException {
+    protected Response doIntercept(@NotNull Method method, @NotNull RequestTimeout annotation, @NotNull Chain chain, @NotNull Request request) throws IOException {
         int connectTimeout = annotation.connectTimeout();
         if (connectTimeout > 0) {
             chain = chain.withConnectTimeout(connectTimeout, TimeUnit.SECONDS);

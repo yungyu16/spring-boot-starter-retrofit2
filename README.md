@@ -9,6 +9,13 @@
 
 该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中使用。
 
+## 特性
+- 继承Retrofit原生api特性
+- 方法级别动态超时
+- 基于Spring Event的请求事件广播
+- 基于SPI继承OkHttp,方便老项目继承
+- 基于Spring IOC的动态OkHttp拦截器链
+
 ## 要求
 - Spring-Boot 2.x
 > 该项目依赖Spring-Boot 2.0.8开发，主要依赖Spring稳定的核心Api，且没有传递Spring-Boot依赖，理论上兼容所有Spring版本。
@@ -26,6 +33,7 @@
 ```
 >[查看release-tag](https://github.com/yungyu16/spring-boot-starter-retrofit2/releases) 
 ## 使用配置
+
 1. 使用`@EnableRetrofitClient`指定包路径开启接口扫描。
 ```java
 @SpringBootApplication
@@ -34,6 +42,7 @@ public class Application {
 
 }
 ```
+
 2. 定义Stub接口
 ```java
 @RetrofitClient(baseUrl = "${biz.tiqianyou.baseUrl}",
@@ -56,6 +65,7 @@ public class RequestConverterImpl implements RequestConverter {
     }
 }
 ```
+
 4. 定义响应转换器
 ```java
 @Component
@@ -67,6 +77,7 @@ public class ResponseConverterImpl implements ResponseConverter {
     }
 }
 ```
+
 5. 指定接口超时
 ```java
     @POST("/creditEnable")
@@ -74,9 +85,14 @@ public class ResponseConverterImpl implements ResponseConverter {
     Call<TqyCreditEnableReply> checkIfCreditEnable(@Body TqyCreditEnableReq req);
 ```
 通过`@RequestTimeout`指定接口超时，单位秒。
-## 拓展思路
-通过指定接口方法上的注解继承`BaseMethodAnnotationInterceptor`，可以实现更多的定制化。
-具体可参考如下请求超时的拦截器实现：
+## 拓展点
+已实现基于注解和OkHttp拦截器的拓展机制，拓展的抽象基类为`BaseMethodAnnotationInterceptor`。
+![BaseMethodAnnotationInterceptor](doc/BaseMethodAnnotationInterceptor.png)
+子类通过实现`BaseMethodAnnotationInterceptor.doIntercept`方法并结合自定义注解达到拦截请求实现自定义逻辑。
+```java
+    protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
+```
+基于`@RequestTimeout`实现动态配置请求超时的拦截器代码实现如下：
 ```java
 public class RequestTimeoutInterceptor extends BaseMethodAnnotationInterceptor<RequestTimeout> {
     public RequestTimeoutInterceptor() {

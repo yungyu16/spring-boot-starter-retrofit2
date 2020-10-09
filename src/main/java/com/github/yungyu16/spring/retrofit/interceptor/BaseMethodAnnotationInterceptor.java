@@ -10,10 +10,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-/**
- * CreatedDate: 2020/9/30
- * Author: songjialin
- */
 public abstract class BaseMethodAnnotationInterceptor<T extends Annotation> implements Interceptor {
     private final Class<T> annotationClass;
 
@@ -24,8 +20,6 @@ public abstract class BaseMethodAnnotationInterceptor<T extends Annotation> impl
         this.annotationClass = annotationClass;
     }
 
-    @NotNull
-    @Override
     public Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
         Invocation tag = request.tag(Invocation.class);
@@ -37,8 +31,8 @@ public abstract class BaseMethodAnnotationInterceptor<T extends Annotation> impl
         if (annotation == null) {
             return chain.proceed(request);
         }
-        return doIntercept(annotation, chain, request);
+        return doIntercept(method, annotation, chain, request);
     }
 
-    protected abstract Response doIntercept(@NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
+    protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
 }

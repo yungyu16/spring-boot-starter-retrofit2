@@ -4,6 +4,7 @@ import com.github.yungyu16.spring.retrofit.converter.DefaultRequestConverter;
 import com.github.yungyu16.spring.retrofit.converter.DefaultResponseConverter;
 import com.github.yungyu16.spring.retrofit.converter.RequestConverter;
 import com.github.yungyu16.spring.retrofit.converter.ResponseConverter;
+import okhttp3.Interceptor;
 
 import java.lang.annotation.*;
 
@@ -22,7 +23,9 @@ public @interface RetrofitClient {
      */
     String baseUrl() default "";
 
-    Class<? extends RequestConverter> requestConverterClazz() default DefaultRequestConverter.class;
+    Class<? extends RequestConverter> requestConverterClass() default DefaultRequestConverter.class;
 
-    Class<? extends ResponseConverter> responseConverterClazz() default DefaultResponseConverter.class;
+    Class<? extends ResponseConverter> responseConverterClass() default DefaultResponseConverter.class;
+
+    Class<? extends Interceptor>[] interceptorClasses() default Interceptor.class;
 }
