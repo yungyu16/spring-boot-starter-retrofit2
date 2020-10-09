@@ -1,6 +1,5 @@
 package com.github.yungyu16.spring.retrofit.converter;
 
-import com.github.yungyu16.spring.retrofit.error.RetrofitException;
 import okhttp3.ResponseBody;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,10 +15,6 @@ public class DefaultResponseConverter implements ResponseConverter {
 
     @Override
     public Object fromResponseBody(@NotNull ResponseBody body, Type type) throws IOException {
-        try {
-            return body.source().readString(StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RetrofitException("网络错误", e);
-        }
+        return body.source().readString(StandardCharsets.UTF_8);
     }
 }
