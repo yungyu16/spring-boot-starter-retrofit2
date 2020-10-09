@@ -120,3 +120,27 @@ public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
 ```java
 protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
 ```
+
+### 动态拦截器链
+实现`okhttp3.Interceptor`接口并添加`@RetrofitInterceptor`指定拦截器适用的Api存根接口即可动态配置OkHttp拦截器链。
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface RetrofitInterceptor {
+    /**
+     * 包含的存根接口列表
+     *
+     * @return
+     */
+    Class<?>[] includeClasses() default Object.class;
+
+    /**
+     * 排除的存根接口列表
+     *
+     * @return
+     */
+    Class<?>[] excludeClasses() default Object.class;
+}
+```

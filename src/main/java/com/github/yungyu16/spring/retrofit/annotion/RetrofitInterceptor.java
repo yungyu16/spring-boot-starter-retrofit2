@@ -13,7 +13,17 @@ import java.lang.annotation.*;
 @Documented
 @Component
 public @interface RetrofitInterceptor {
+    /**
+     * 包含的存根接口列表
+     *
+     * @return
+     */
     Class<?>[] includeClasses() default Object.class;
 
+    /**
+     * 排除的存根接口列表
+     *
+     * @return
+     */
     Class<?>[] excludeClasses() default Object.class;
 }
