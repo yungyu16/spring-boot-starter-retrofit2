@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -92,6 +93,7 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Application
         String[] interceptorNames = BeanFactoryUtils.beanNamesForAnnotationIncludingAncestors(applicationContext, RetrofitInterceptor.class);
         Arrays.stream(interceptorNames)
                 .map(it -> applicationContext.getBean(it))
+                .sorted(AnnotationAwareOrderComparator.INSTANCE)
                 .filter(it -> checkIfApply(retrofitClientClass, it))
                 .map(it -> ((Interceptor) it))
                 .forEach(builder::addInterceptor);

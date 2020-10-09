@@ -10,11 +10,11 @@
 该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中使用。
 
 ## 特性
-[x] 继承Retrofit原生特性   
-[x] 方法级动态设置超时   
-[ ] 基于Spring Event的请求事件广播   
-[x] 基于SPI引入既有HttpClient实例,方便老项目集成   
-[x] 基于Spring IOC的动态OkHttp拦截器链   
+- [x] 继承Retrofit原生特性   
+- [x] 方法级动态设置超时   
+- [ ] 基于Spring Event的请求事件广播   
+- [x] 基于SPI引入既有HttpClient实例,方便老项目集成   
+- [x] 基于Spring IOC的动态OkHttp拦截器链   
 
 ## 要求
 - Spring-Boot 2.x
@@ -122,7 +122,8 @@ protected abstract Response doIntercept(@NotNull Method method, @NotNull T annot
 ```
 
 ### 动态拦截器链
-实现`okhttp3.Interceptor`接口并添加`@RetrofitInterceptor`指定拦截器适用的Api存根接口即可动态配置OkHttp拦截器链。
+实现`okhttp3.Interceptor`接口并添加`@RetrofitInterceptor`指定拦截器适用的Api存根接口即可动态配置OkHttp拦截器链。   
+支持`org.springframework.core.annotation.Order`系注解和接口排序
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
