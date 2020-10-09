@@ -92,7 +92,7 @@ Call<TqyCreditEnableReply> checkIfCreditEnable(@Body TqyCreditEnableReq req);
 ```java
 @AutoService(OkHttpClientLoader.class)
 public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
-    private static OkHttpClient HTTP_CLIENT;
+    private static volatile OkHttpClient HTTP_CLIENT;
 
     @Override
     public OkHttpClient getBaseHttpClient() {

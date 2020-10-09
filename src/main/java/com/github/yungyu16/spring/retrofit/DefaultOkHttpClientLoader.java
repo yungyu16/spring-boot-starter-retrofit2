@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * Author: songjialin
  */
 public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
-    private static OkHttpClient HTTP_CLIENT;
+    private static volatile OkHttpClient HTTP_CLIENT;
 
     @Override
     public OkHttpClient getBaseHttpClient() {
