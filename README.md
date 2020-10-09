@@ -12,6 +12,7 @@
 ## 特性
 - [x] 继承Retrofit原生特性   
 - [x] 方法级动态设置超时   
+- [x] 封装OkHttp拦截器方便基于注解拓展   
 - [ ] 基于Spring Event的请求事件广播   
 - [x] 基于SPI引入既有HttpClient实例,方便老项目集成   
 - [x] 基于Spring IOC的OkHttp动态拦截器链   
