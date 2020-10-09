@@ -10,10 +10,10 @@
 该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中使用。
 
 ## 特性
-- 继承Retrofit原生api特性
-- 方法级别动态超时
+- 继承Retrofit原生特性
+- 方法级动态设置超时
 - 基于Spring Event的请求事件广播
-- 基于SPI继承OkHttp,方便老项目继承
+- 基于SPI引入既有HttpClient实例,方便老项目集成
 - 基于Spring IOC的动态OkHttp拦截器链
 
 ## 要求
@@ -80,40 +80,43 @@ public class ResponseConverterImpl implements ResponseConverter {
 
 5. 指定接口超时
 ```java
-    @POST("/creditEnable")
-    @RequestTimeout(readTimeout = 10)
-    Call<TqyCreditEnableReply> checkIfCreditEnable(@Body TqyCreditEnableReq req);
+@POST("/creditEnable")
+@RequestTimeout(readTimeout = 10)
+Call<TqyCreditEnableReply> checkIfCreditEnable(@Body TqyCreditEnableReq req);
 ```
 通过`@RequestTimeout`指定接口超时，单位秒。
 ## 拓展点
-已实现基于注解和OkHttp拦截器的拓展机制，拓展的抽象基类为`BaseMethodAnnotationInterceptor`。
-![BaseMethodAnnotationInterceptor](doc/BaseMethodAnnotationInterceptor.png)
-子类通过实现`BaseMethodAnnotationInterceptor.doIntercept`方法并结合自定义注解达到拦截请求实现自定义逻辑。
+### SPI OkHttpClient提供者
+如文档所述，OkHttpClient应为全局单例，为共享项目中既有的OkHttpClient实例，提供了基于SPI的提供者接口。    
+默认使用`DefaultOkHttpClientLoader`构建新的OkHttpClient实例，可实现`OkHttpClientLoader`接入既有OkHttpClient实例；代码实例如下
 ```java
-    protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
-```
-基于`@RequestTimeout`实现动态配置请求超时的拦截器代码实现如下：
-```java
-public class RequestTimeoutInterceptor extends BaseMethodAnnotationInterceptor<RequestTimeout> {
-    public RequestTimeoutInterceptor() {
-        super(RequestTimeout.class);
-    }
+@AutoService(OkHttpClientLoader.class)
+public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
+    private static OkHttpClient HTTP_CLIENT;
 
     @Override
-    protected Response doIntercept(@NotNull RequestTimeout annotation, @NotNull Chain chain, @NotNull Request request) throws IOException {
-        int connectTimeout = annotation.connectTimeout();
-        if (connectTimeout > 0) {
-            chain = chain.withConnectTimeout(connectTimeout, TimeUnit.SECONDS);
+    public OkHttpClient getBaseHttpClient() {
+        if (HTTP_CLIENT == null) {
+            synchronized (DefaultOkHttpClientLoader.class) {
+                if (HTTP_CLIENT == null) {
+                    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(MiscConstants.log::info);
+                    HTTP_CLIENT = new OkHttpClient.Builder()
+                            .addInterceptor(interceptor)
+                            .connectTimeout(5, TimeUnit.SECONDS)
+                            .readTimeout(5, TimeUnit.SECONDS)
+                            .writeTimeout(5, TimeUnit.SECONDS)
+                            .build();
+                }
+            }
         }
-        int readTimeout = annotation.readTimeout();
-        if (readTimeout > 0) {
-            chain = chain.withReadTimeout(readTimeout, TimeUnit.SECONDS);
-        }
-        int writeTimeout = annotation.writeTimeout();
-        if (writeTimeout > 0) {
-            chain = chain.withWriteTimeout(writeTimeout, TimeUnit.SECONDS);
-        }
-        return chain.proceed(request);
+        return HTTP_CLIENT;
     }
 }
+```
+### 注解拦截器
+已实现基于注解和OkHttp拦截器的拓展机制，拓展的抽象基类为`BaseMethodAnnotationInterceptor`。
+![BaseMethodAnnotationInterceptor](doc/BaseMethodAnnotationInterceptor.png)
+子类通过实现`BaseMethodAnnotationInterceptor.doIntercept`方法并结合自定义注解达到拦截请求实现自定义逻辑；具体思路可参考`RequestTimeoutInterceptor`。
+```java
+protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;
 ```

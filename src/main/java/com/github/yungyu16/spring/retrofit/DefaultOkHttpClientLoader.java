@@ -1,6 +1,7 @@
 package com.github.yungyu16.spring.retrofit;
 
 import com.github.yungyu16.spring.retrofit.constant.MiscConstants;
+import com.google.auto.service.AutoService;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  * CreatedDate: 2020/9/27
  * Author: songjialin
  */
+@AutoService(OkHttpClientLoader.class)
 public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
     private static OkHttpClient HTTP_CLIENT;
 
