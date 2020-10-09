@@ -10,11 +10,11 @@
 该项目旨在为Retrofit2提供一个简单的胶水层，使其生成的Api Stub能透明的在Spring容器中注册，方便在业务代码中使用。
 
 ## 特性
-- 继承Retrofit原生特性
-- 方法级动态设置超时
-- 基于Spring Event的请求事件广播
-- 基于SPI引入既有HttpClient实例,方便老项目集成
-- 基于Spring IOC的动态OkHttp拦截器链
+[x] 继承Retrofit原生特性   
+[x] 方法级动态设置超时   
+[ ] 基于Spring Event的请求事件广播   
+[x] 基于SPI引入既有HttpClient实例,方便老项目集成   
+[x] 基于Spring IOC的动态OkHttp拦截器链   
 
 ## 要求
 - Spring-Boot 2.x

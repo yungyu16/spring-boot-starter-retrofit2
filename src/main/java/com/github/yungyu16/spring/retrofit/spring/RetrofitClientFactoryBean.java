@@ -5,7 +5,6 @@ import com.github.yungyu16.spring.retrofit.OkHttpClientLoader;
 import com.github.yungyu16.spring.retrofit.annotion.RetrofitClient;
 import com.github.yungyu16.spring.retrofit.annotion.RetrofitInterceptor;
 import com.github.yungyu16.spring.retrofit.interceptor.RequestTimeoutInterceptor;
-import com.github.yungyu16.spring.retrofit.interceptor.RequestTrackInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -69,8 +68,8 @@ public class RetrofitClientFactoryBean<T> implements FactoryBean<T>, Application
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
         OkHttpClient baseHttpClient = HTTP_CLIENT_LOADER.getBaseHttpClient();
         OkHttpClient.Builder builder = baseHttpClient.newBuilder()
-                .addInterceptor(new RequestTimeoutInterceptor())
-                .addInterceptor(new RequestTrackInterceptor(applicationContext));
+                .addInterceptor(new RequestTimeoutInterceptor());
+        //.addInterceptor(new RequestTrackInterceptor(applicationContext));
         applyRetrofitInterceptors(builder, clientInterface);
         retrofitBuilder.client(builder.build());
         String baseUrl = retrofitClient.baseUrl();

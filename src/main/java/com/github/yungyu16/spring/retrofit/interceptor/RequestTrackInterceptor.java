@@ -29,7 +29,6 @@ public class RequestTrackInterceptor extends BaseMethodAnnotationInterceptor<Req
 
     @Override
     protected Response doIntercept(@NotNull Method method, @NotNull RequestTrack annotation, @NotNull Chain chain, @NotNull Request request) throws IOException {
-
         String topic = annotation.topic();
         String[] tags = annotation.tags();
         Map<String, List<String>> headerMap = request.headers().toMultimap();
