@@ -14,7 +14,7 @@
 - [x] 方法级动态设置超时   
 - [ ] 基于Spring Event的请求事件广播   
 - [x] 基于SPI引入既有HttpClient实例,方便老项目集成   
-- [x] 基于Spring IOC的动态OkHttp拦截器链   
+- [x] 基于Spring IOC的OkHttp动态拦截器链   
 
 ## 要求
 - Spring-Boot 2.x
