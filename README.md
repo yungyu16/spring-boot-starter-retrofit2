@@ -116,7 +116,7 @@ public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
 ```
 ### 注解拦截器
 已实现基于注解和OkHttp拦截器的拓展机制，拓展的抽象基类为`BaseMethodAnnotationInterceptor`。
-![BaseMethodAnnotationInterceptor](doc/BaseMethodAnnotationInterceptor.png)
+![BaseMethodAnnotationInterceptor](doc/snapshot1.png)
 子类通过实现`BaseMethodAnnotationInterceptor.doIntercept`方法并结合自定义注解达到拦截请求实现自定义逻辑；具体思路可参考`RequestTimeoutInterceptor`。
 ```java
 protected abstract Response doIntercept(@NotNull Method method, @NotNull T annotation, @NotNull Chain chain, @NotNull Request request) throws IOException;

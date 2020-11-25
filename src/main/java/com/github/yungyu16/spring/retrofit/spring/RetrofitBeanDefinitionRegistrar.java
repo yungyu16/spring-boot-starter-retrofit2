@@ -1,6 +1,6 @@
 package com.github.yungyu16.spring.retrofit.spring;
 
-import com.github.yungyu16.spring.retrofit.annotion.EnableRetrofitClient;
+import com.github.yungyu16.spring.retrofit.annotion.RetrofitClientScan;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -22,7 +22,7 @@ public class RetrofitBeanDefinitionRegistrar implements ImportBeanDefinitionRegi
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, @NotNull BeanDefinitionRegistry registry) {
-        AnnotationAttributes attrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(EnableRetrofitClient.class.getName()));
+        AnnotationAttributes attrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(RetrofitClientScan.class.getName()));
         if (attrs == null) {
             throw new RuntimeException("这个不可能发生");
         }
