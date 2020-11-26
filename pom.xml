@@ -110,7 +110,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <distributionManagement>
         <snapshotRepository>
             <id>oss-snapshots</id>
