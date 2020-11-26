@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.github.yungyu16.spring.retrofit.RetrofitClientAutoConfiguration
+com.github.yungyu16.spring.http.RetrofitClientAutoConfiguration
