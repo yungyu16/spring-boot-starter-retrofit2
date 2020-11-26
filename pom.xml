@@ -6,7 +6,16 @@
     <groupId>com.github.yungyu16.spring</groupId>
     <artifactId>spring-boot-starter-retrofit2</artifactId>
     <version>1.0.0</version>
-
+    <name>${project.artifactId}</name>
+    <description>将不可实例化的Interface动态代理后注册到Spring容器以便IOC,用于便捷的生成Local Stub</description>
+    <url>https://github.com/yungyu16/spring-boot-starter-retrofit2</url>
+    <licenses>
+        <license>
+            <name>Apache v2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -16,7 +25,27 @@
         <okhttp.version>4.0.1</okhttp.version>
         <retrofit.version>2.9.0</retrofit.version>
     </properties>
-
+    <developers>
+        <developer>
+            <id>yungyu16</id>
+            <name>yungyu16</name>
+            <email>songjialin16@gmail.com</email>
+            <roles>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:https://github.com/yungyu16/spring-boot-starter-retrofit2</connection>
+        <developerConnection>scm:git:https://github.com/yungyu16/spring-boot-starter-retrofit2</developerConnection>
+        <url>https://github.com/yungyu16/spring-boot-starter-retrofit2</url>
+    </scm>
+    <issueManagement>
+        <system>Github Issues</system>
+        <url>https://github.com/yungyu16/spring-boot-starter-retrofit2/issues</url>
+    </issueManagement>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -28,7 +57,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -82,4 +110,73 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>oss-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>oss-releases</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.yungyu16.maven</groupId>
+                <artifactId>version-maven-plugin</artifactId>
+                <version>1.0.1</version>
+            </plugin>
+            <!-- Source -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <aggregate>true</aggregate>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- GPG -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
