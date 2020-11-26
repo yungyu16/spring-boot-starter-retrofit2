@@ -20,8 +20,6 @@ import java.lang.annotation.*;
 public @interface HttpClient {
     /**
      * 接口baseUrl
-     *
-     * @return
      */
     String baseUrl() default "";
 

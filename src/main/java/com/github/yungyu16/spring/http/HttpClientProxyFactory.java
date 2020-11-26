@@ -2,10 +2,12 @@ package com.github.yungyu16.spring.http;
 
 import com.github.yungyu16.spring.http.annotion.HttpClient;
 import com.github.yungyu16.spring.http.annotion.RetrofitInterceptor;
+import com.github.yungyu16.spring.http.calladapter.ResponseAdapterFactory;
 import com.github.yungyu16.spring.http.interceptor.RequestTimeoutInterceptor;
 import com.github.yungyu16.spring.stub.annotation.ProxyStub;
 import com.github.yungyu16.spring.stub.proxy.StubProxyFactory;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Call;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +34,9 @@ import java.util.ServiceLoader;
  */
 @Slf4j
 public class HttpClientProxyFactory implements StubProxyFactory, ApplicationContextAware {
+    private static final ResponseAdapterFactory RESPONSE_ADAPTER_FACTORY = new ResponseAdapterFactory();
     private static final OkHttpClient BASE_HTTP_CLIENT;
+    private ApplicationContext applicationContext;
 
     static {
         ServiceLoader<OkHttpClientLoader> loaders = ServiceLoader.load(OkHttpClientLoader.class);
@@ -46,29 +50,46 @@ public class HttpClientProxyFactory implements StubProxyFactory, ApplicationCont
         BASE_HTTP_CLIENT = httpClientLoader.getBaseHttpClient();
     }
 
-    private ApplicationContext applicationContext;
-
     @Override
     public <T> T createProxy(Class<T> stubInterface, ProxyStub stubAnnotation) {
-        Retrofit.Builder retrofitBuilder = new Retrofit.Builder();
+
         HttpClient httpClient = AnnotationUtils.getAnnotation(stubInterface, HttpClient.class);
-        OkHttpClient.Builder builder = BASE_HTTP_CLIENT.newBuilder()
-                .addInterceptor(new RequestTimeoutInterceptor());
-        //.addInterceptor(new RequestTrackInterceptor(applicationContext));
-        applyRetrofitInterceptors(builder, stubInterface);
-        retrofitBuilder.client(builder.build());
+        if (httpClient == null) {
+            throw new NullPointerException(stubInterface.getName() + "上没有@httpClient注解");
+        }
+        Call.Factory callFactory = buildCallFactory(stubInterface);
+        String baseUrl = buildBaseUrl(httpClient);
+        Retrofit.Builder retrofitBuilder = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .callFactory(callFactory)
+                .addCallAdapterFactory(RESPONSE_ADAPTER_FACTORY)
+                .addConverterFactory(new CompositeConverterFactory(applicationContext, httpClient.requestConverterClass(), httpClient.responseConverterClass()));
+        log.debug("new Retrofit HttpClient.interface：" + stubInterface + " baseUrl：" + baseUrl);
+        Retrofit retrofit = retrofitBuilder.build();
+        return retrofit.create(stubInterface);
+    }
+
+    @NotNull
+    private String buildBaseUrl(HttpClient httpClient) {
         String baseUrl = httpClient.baseUrl();
         if (StringUtils.hasText(baseUrl)) {
+            baseUrl = baseUrl.trim();
             baseUrl = applicationContext.getEnvironment().resolveRequiredPlaceholders(baseUrl);
             if (!baseUrl.endsWith("/")) {
                 baseUrl += "/";
             }
-            retrofitBuilder.baseUrl(baseUrl);
         }
-        retrofitBuilder.addConverterFactory(new CompositeConverterFactory(applicationContext, httpClient.requestConverterClass(), httpClient.responseConverterClass()));
-        log.info("开始构建Retrofit Stub。interface：" + stubInterface + " baseUrl：" + baseUrl);
-        Retrofit retrofit = retrofitBuilder.build();
-        return retrofit.create(stubInterface);
+        return baseUrl;
+    }
+
+    @NotNull
+    private <T> Call.Factory buildCallFactory(Class<T> stubInterface) {
+        OkHttpClient.Builder builder = BASE_HTTP_CLIENT.newBuilder()
+                .addInterceptor(new RequestTimeoutInterceptor());
+        //.addInterceptor(new RequestTrackInterceptor(applicationContext));
+        applyRetrofitInterceptors(builder, stubInterface);
+        OkHttpClient okHttpClient = builder.build();
+        return okHttpClient;
     }
 
     private void applyRetrofitInterceptors(OkHttpClient.Builder builder, Class<?> retrofitClientClass) {
@@ -83,7 +104,6 @@ public class HttpClientProxyFactory implements StubProxyFactory, ApplicationCont
                 .forEach(builder::addInterceptor);
     }
 
-    @NotNull
     private boolean checkIfApply(Class<?> retrofitClientClass, Object interceptor) {
         Class<?> interceptorClazz = ClassUtils.getUserClass(interceptor);
         AnnotationAttributes mergedAnnotationAttributes = AnnotatedElementUtils.getMergedAnnotationAttributes(interceptorClazz, RetrofitInterceptor.class);

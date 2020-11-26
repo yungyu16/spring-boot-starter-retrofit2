@@ -1,7 +1,7 @@
 package com.github.yungyu16.spring.http.stub;
 
 import com.github.yungyu16.spring.http.annotion.HttpClient;
-import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
@@ -12,6 +12,6 @@ import retrofit2.http.Path;
 @HttpClient(baseUrl = "https://api.github.com")
 public interface GithubClient {
     @GET("users/{user}/repos")
-    Call<String> listRepos(@Path("user") String user);
+    Response<String> listRepos(@Path("user") String user);
 
 }

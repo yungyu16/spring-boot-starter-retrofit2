@@ -22,7 +22,6 @@ public class HttpClientTest {
     @Test
     public void test() throws IOException {
         String body = githubClient.listRepos("yungyu16")
-                .execute()
                 .body();
         System.out.println(body);
     }
