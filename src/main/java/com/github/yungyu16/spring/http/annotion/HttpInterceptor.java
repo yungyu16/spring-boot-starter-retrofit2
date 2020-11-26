@@ -15,5 +15,10 @@ import java.lang.annotation.*;
 public @interface HttpInterceptor {
     Class<? extends Interceptor> value() default Interceptor.class;
 
+    /**
+     * 从小到大升序排列组成拦截器链
+     *
+     * @return
+     */
     int index() default -1;
 }
