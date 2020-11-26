@@ -15,7 +15,8 @@ import retrofit2.http.POST;
 @HttpClient("https://api.dev.50lion.com/web-app")
 @ReqConverterType(GithubReqBodyConverter.class)
 @ReplyConverterType(GithubReplyBodyConverter.class)
-@HttpInterceptor(TestInterceptor.class)
+@HttpInterceptor(TestInterceptor1.class)
+@HttpInterceptor(TestInterceptor2.class)
 public interface GithubClient {
 
     @POST("account/login")

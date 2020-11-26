@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class TestInterceptor implements Interceptor {
+public class TestInterceptor2 implements Interceptor {
     public Response intercept(@NotNull Chain chain) throws IOException {
         System.out.println("===============================");
         System.out.println("===============================");
-        System.out.println("=============hello==============");
+        System.out.println("=============TestInterceptor2==============");
         System.out.println("===============================");
         System.out.println("===============================");
         System.out.println("===============================");
