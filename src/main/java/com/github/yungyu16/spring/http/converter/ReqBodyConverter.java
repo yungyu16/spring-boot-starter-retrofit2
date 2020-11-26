@@ -12,8 +12,9 @@ import java.lang.reflect.Type;
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/26.
  */
-public interface RequestConverter {
+public interface ReqBodyConverter {
     MediaType CONTENT_TYPE_TEXT = MediaType.get(MimeTypeUtils.TEXT_PLAIN_VALUE);
+    MediaType CONTENT_TYPE_JSON = MediaType.get(MimeTypeUtils.APPLICATION_JSON_VALUE);
 
     RequestBody toRequestBody(@NotNull Object entity, Type type) throws IOException;
 

@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/26.
  */
-public class DefaultRequestConverter implements RequestConverter {
+public class DefaultReqBodyConverter implements ReqBodyConverter {
     @Override
     public RequestBody toRequestBody(@NotNull Object entity, Type type) {
         return buildRequestBody(String.valueOf(entity));

@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/26.
  */
-public class DefaultResponseConverter implements ResponseConverter {
+public class DefaultReplyBodyConverter implements ReplyBodyConverter {
 
     @Override
     public Object fromResponseBody(@NotNull ResponseBody body, Type type) throws IOException {

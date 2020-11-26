@@ -1,6 +1,8 @@
 package com.github.yungyu16.spring.http;
 
 import com.github.yungyu16.spring.http.annotion.HttpClient;
+import com.github.yungyu16.spring.http.annotion.ReplyConverterType;
+import com.github.yungyu16.spring.http.annotion.ReqConverterType;
 import com.github.yungyu16.spring.http.annotion.RetrofitInterceptor;
 import com.github.yungyu16.spring.http.calladapter.ResponseAdapterFactory;
 import com.github.yungyu16.spring.http.interceptor.RequestTimeoutInterceptor;
@@ -52,8 +54,9 @@ public class HttpClientProxyFactory implements StubProxyFactory, ApplicationCont
 
     @Override
     public <T> T createProxy(Class<T> stubInterface, ProxyStub stubAnnotation) {
-
         HttpClient httpClient = AnnotationUtils.getAnnotation(stubInterface, HttpClient.class);
+        ReqConverterType reqConverterType = AnnotationUtils.getAnnotation(stubInterface, ReqConverterType.class);
+        ReplyConverterType replyConverterType = AnnotationUtils.getAnnotation(stubInterface, ReplyConverterType.class);
         if (httpClient == null) {
             throw new NullPointerException(stubInterface.getName() + "上没有@httpClient注解");
         }
@@ -63,7 +66,7 @@ public class HttpClientProxyFactory implements StubProxyFactory, ApplicationCont
                 .baseUrl(baseUrl)
                 .callFactory(callFactory)
                 .addCallAdapterFactory(RESPONSE_ADAPTER_FACTORY)
-                .addConverterFactory(new CompositeConverterFactory(applicationContext, httpClient.requestConverterClass(), httpClient.responseConverterClass()));
+                .addConverterFactory(new CompositeConverterFactory(applicationContext, reqConverterType, replyConverterType));
         log.debug("new Retrofit HttpClient.interface：" + stubInterface + " baseUrl：" + baseUrl);
         Retrofit retrofit = retrofitBuilder.build();
         return retrofit.create(stubInterface);
@@ -88,8 +91,7 @@ public class HttpClientProxyFactory implements StubProxyFactory, ApplicationCont
                 .addInterceptor(new RequestTimeoutInterceptor());
         //.addInterceptor(new RequestTrackInterceptor(applicationContext));
         applyRetrofitInterceptors(builder, stubInterface);
-        OkHttpClient okHttpClient = builder.build();
-        return okHttpClient;
+        return builder.build();
     }
 
     private void applyRetrofitInterceptors(OkHttpClient.Builder builder, Class<?> retrofitClientClass) {

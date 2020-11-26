@@ -1,6 +1,8 @@
 package com.github.yungyu16.spring.http;
 
 import com.github.yungyu16.spring.http.stub.GithubClient;
+import com.github.yungyu16.spring.http.stub.LoginForm;
+import com.github.yungyu16.spring.http.stub.LoginVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,10 @@ public class HttpClientTest {
 
     @Test
     public void test() throws IOException {
-        String body = githubClient.listRepos("yungyu16")
+        LoginForm form = new LoginForm();
+        form.setAccount("15156684305");
+        form.setSmsCode("123456");
+        LoginVO body = githubClient.listRepos(form)
                 .body();
         System.out.println(body);
     }

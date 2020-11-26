@@ -1,9 +1,11 @@
 package com.github.yungyu16.spring.http;
 
-import com.github.yungyu16.spring.http.converter.DefaultRequestConverter;
-import com.github.yungyu16.spring.http.converter.DefaultResponseConverter;
-import com.github.yungyu16.spring.http.converter.RequestConverter;
-import com.github.yungyu16.spring.http.converter.ResponseConverter;
+import com.github.yungyu16.spring.http.annotion.ReplyConverterType;
+import com.github.yungyu16.spring.http.annotion.ReqConverterType;
+import com.github.yungyu16.spring.http.converter.DefaultReplyBodyConverter;
+import com.github.yungyu16.spring.http.converter.DefaultReqBodyConverter;
+import com.github.yungyu16.spring.http.converter.ReplyBodyConverter;
+import com.github.yungyu16.spring.http.converter.ReqBodyConverter;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.jetbrains.annotations.NotNull;
@@ -17,40 +19,41 @@ import retrofit2.internal.EverythingIsNonNull;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 /**
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/25.
  */
 public class CompositeConverterFactory extends Converter.Factory {
-    private static RequestConverter defaultRequestConverter = new DefaultRequestConverter();
+    private static ReqBodyConverter defaultReqBodyConverter = new DefaultReqBodyConverter();
     @SuppressWarnings("all")
-    private static ResponseConverter defaultResponseConverter = new DefaultResponseConverter();
+    private static ReplyBodyConverter defaultReplyBodyConverter = new DefaultReplyBodyConverter();
     private final ApplicationContext applicationContext;
-    private final Class<? extends RequestConverter> requestConverterClazz;
-    private final Class<? extends ResponseConverter> responseConverterClazz;
+    private final ReqConverterType reqConverterType;
+    private final ReplyConverterType replyConverterType;
 
-    public CompositeConverterFactory(ApplicationContext applicationContext,
-                                     Class<? extends RequestConverter> requestConverterClazz,
-                                     Class<? extends ResponseConverter> responseConverterClazz) {
+    public CompositeConverterFactory(ApplicationContext applicationContext, ReqConverterType reqConverterType, ReplyConverterType replyConverterType) {
         Assert.notNull(applicationContext, "applicationContext");
-        Assert.notNull(requestConverterClazz, "requestConverterClazz");
-        Assert.notNull(responseConverterClazz, "responseConverterClazz");
+        Assert.notNull(reqConverterType, "reqConverterType");
+        Assert.notNull(replyConverterType, "replyConverterType");
         this.applicationContext = applicationContext;
-        this.requestConverterClazz = requestConverterClazz;
-        this.responseConverterClazz = responseConverterClazz;
+        this.reqConverterType = reqConverterType;
+        this.replyConverterType = replyConverterType;
     }
 
     @Nullable
     @Override
     @EverythingIsNonNull
     public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
-        checkGenericType(type);
-        ResponseConverter converter;
-        if (responseConverterClazz.equals(DefaultResponseConverter.class)) {
-            converter = defaultResponseConverter;
+        Class<? extends ReplyBodyConverter> converterType = getReplyConverterType(annotations)
+                .orElse(replyConverterType)
+                .value();
+        ReplyBodyConverter converter;
+        if (converterType.equals(DefaultReplyBodyConverter.class)) {
+            converter = defaultReplyBodyConverter;
         } else {
-            converter = applicationContext.getBean(responseConverterClazz);
+            converter = applicationContext.getBean(converterType);
         }
         return new Converter<ResponseBody, Object>() {
             @Nullable
@@ -64,12 +67,14 @@ public class CompositeConverterFactory extends Converter.Factory {
     @Nullable
     @Override
     public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
-        checkGenericType(type);
-        RequestConverter converter;
-        if (requestConverterClazz.equals(DefaultRequestConverter.class)) {
-            converter = defaultRequestConverter;
+        Class<? extends ReqBodyConverter> converterType = getReqConverterType(methodAnnotations)
+                .orElse(reqConverterType)
+                .value();
+        ReqBodyConverter converter;
+        if (converterType.equals(DefaultReqBodyConverter.class)) {
+            converter = defaultReqBodyConverter;
         } else {
-            converter = applicationContext.getBean(requestConverterClazz);
+            converter = applicationContext.getBean(converterType);
         }
         return new Converter<Object, RequestBody>() {
             @Nullable
@@ -80,12 +85,26 @@ public class CompositeConverterFactory extends Converter.Factory {
         };
     }
 
-    private void checkGenericType(Type type) {
-        if (type == null) {
-            throw new IllegalStateException("对不起，泛型参数和返回值处理比较复杂，拜托想想办法不要使用泛型，谢谢合作");
+    private Optional<ReqConverterType> getReqConverterType(Annotation[] annotations) {
+        return getSpecificAnnotation(annotations, ReqConverterType.class);
+    }
+
+    private Optional<ReplyConverterType> getReplyConverterType(Annotation[] annotations) {
+        return getSpecificAnnotation(annotations, ReplyConverterType.class);
+    }
+
+    private <T extends Annotation> Optional<T> getSpecificAnnotation(Annotation[] annotations, Class<T> target) {
+        if (target == null) {
+            return Optional.empty();
         }
-        if (!(type instanceof Class)) {
-            throw new IllegalStateException("对不起，暂时没精力支持泛型参数，拜托请想想办法不要用泛型参数。谢谢合作");
+        if (annotations == null) {
+            return Optional.empty();
         }
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType() == target) {
+                return Optional.of((T) annotation);
+            }
+        }
+        return Optional.empty();
     }
 }

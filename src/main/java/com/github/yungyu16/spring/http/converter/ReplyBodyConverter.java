@@ -10,6 +10,6 @@ import java.lang.reflect.Type;
  * @author Yungyu
  * @description Created by Yungyu on 2020/9/26.
  */
-public interface ResponseConverter {
+public interface ReplyBodyConverter {
     Object fromResponseBody(@NotNull ResponseBody body, Type type) throws IOException;
 }

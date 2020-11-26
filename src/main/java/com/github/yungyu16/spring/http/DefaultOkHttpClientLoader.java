@@ -19,6 +19,7 @@ public class DefaultOkHttpClientLoader implements OkHttpClientLoader {
             synchronized (DefaultOkHttpClientLoader.class) {
                 if (HTTP_CLIENT == null) {
                     HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor(HttpLogger::info);
+                    interceptor.level(HttpLoggingInterceptor.Level.BODY);
                     HTTP_CLIENT = new OkHttpClient.Builder()
                             .addInterceptor(interceptor)
                             .connectTimeout(5, TimeUnit.SECONDS)
